@@ -1,3 +1,4 @@
 # context-free-glamour
-Conrad Bucholtz, Keegan Welch, Callum Ferguson, Joseph Vitale
-Python interpreter using Java language
+Conrad Bucholtz, Keegan Welch, Callum Ferguson, and Joseph Vitale.
+
+## Python interpreter using Java language
