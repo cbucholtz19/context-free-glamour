@@ -1,9 +1,9 @@
 var Parser = require("jison").Parser;
 
-window.variables = {};
-
 window.run = () =>
 {
+    window.variables = {};
+    
     var grammerText = document.getElementById("grammer").value;
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
