@@ -36,6 +36,7 @@
 "else"                         return 'ELSE'
 
 "print"                        return "PRINT"
+"str"                          return "STR"
 "debug_variables"              return "DEBUG_VARIABLES"
 ["][^"]*["]                    return "STRING"
 [0-9]+("."[0-9]+)?\b           return "NUMBER"
@@ -119,4 +120,7 @@ e
         {$$ = variables[$1];}
     | STRING
         {$$ = $1.slice(1, -1);} //take off the quotes
+    
+    | STR '(' e ')'
+        {$$ = $3}
     ;

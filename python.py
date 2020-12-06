@@ -16,7 +16,7 @@ print(my_string + my_other_string)
 # math test
 x = 4 + 5 - 2**4
 x *= 2
-print(x - 3)
+print("x: " + str(x - 3))
 
 # boolean test
 my_bool = (1 == 1)
