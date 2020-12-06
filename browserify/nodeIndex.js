@@ -769,6 +769,10 @@ $(() => {
         $("#input").val(filesData["python.py"]);
         run();
     });
+    if(0)
+        console.log("yee");
+    else
+        console.log("ooo");
 });
 },{"jison":20}],5:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
@@ -5577,7 +5581,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/escodegen/-/escodegen-1.3.3.tgz",
   "_shasum": "f024016f5a88e046fd12005055e939802e6c5f23",
   "_spec": "escodegen@1.3.x",
-  "_where": "C:\\Users\\callum\\Documents\\git\\context-free-glamour\\node_modules\\jison",
+  "_where": "C:\\Users\\Callum\\Documents\\git\\PythonParseTest\\node_modules\\jison",
   "bin": {
     "esgenerate": "bin/esgenerate.js",
     "escodegen": "bin/escodegen.js"
@@ -10436,7 +10440,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/jison-lex/-/jison-lex-0.3.4.tgz",
   "_shasum": "81ca28d84f84499dfa8c594dcde3d8a3f26ec7a5",
   "_spec": "jison-lex@0.3.x",
-  "_where": "C:\\Users\\callum\\Documents\\git\\context-free-glamour\\node_modules\\jison",
+  "_where": "C:\\Users\\Callum\\Documents\\git\\PythonParseTest\\node_modules\\jison",
   "author": {
     "name": "Zach Carter",
     "email": "zach@carter.name",
@@ -13223,7 +13227,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/jison/-/jison-0.4.18.tgz",
   "_shasum": "c68a6a54bfe7028fa40bcfc6cc8bbd9ed291f502",
   "_spec": "jison",
-  "_where": "C:\\Users\\callum\\Documents\\git\\context-free-glamour",
+  "_where": "C:\\Users\\Callum\\Documents\\git\\PythonParseTest",
   "author": {
     "name": "Zach Carter",
     "email": "zach@carter.name",

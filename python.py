@@ -19,9 +19,9 @@ x *= 2
 print("x: " + str(x - 3))
 
 # boolean test
-my_bool = (1 == 1)
+my_bool = True
 print(my_bool)
-my_bool = (1 != 1)
+my_bool = 1 != 1
 print(my_bool)
-my_bool = (3 <= 1)
+my_bool = 3 <= 1
 print(my_bool)

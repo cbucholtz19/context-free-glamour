@@ -31,6 +31,9 @@
 "/"                            return '/'
 "%"                            return '%'
 
+"True"                         return "TRUE"
+"False"                        return "FALSE"
+
 ":"                            return ':'
 "if"                           return 'IF'
 "else"                         return 'ELSE'
@@ -120,6 +123,11 @@ e
         {$$ = variables[$1];}
     | STRING
         {$$ = $1.slice(1, -1);} //take off the quotes
+    
+    | TRUE
+        {$$ = true}
+    | FALSE
+        {$$ = false}
     
     | STR '(' e ')'
         {$$ = $3}
