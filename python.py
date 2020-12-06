@@ -1,2 +1,2 @@
 test = 6
-print test
+print(test)
