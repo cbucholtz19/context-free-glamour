@@ -744,23 +744,31 @@ window.run = () =>
     document.getElementById("output").innerHTML = window.output;
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    var client = new XMLHttpRequest();
-    client.open('GET', 'grammer.jison');
-    client.onreadystatechange = function()
+function getFiles(files, filesDataCallback)
+{
+    var filesData = {};
+    var completedRequests = 0;
+    for(var i = 0; i < files.length; i++)
     {
-        var client2 = new XMLHttpRequest();
-        client2.open('GET', 'python.py');
-        client2.onreadystatechange = function()
-        {
-            document.getElementById("grammer").value = client.responseText;
-            document.getElementById("input").value = client2.responseText;
-
-            run();
-        }
-        client2.send();
+        ((i) => {
+            $.get(files[i], (data) => {
+                filesData[files[i]] = data;
+                completedRequests++;
+                if(completedRequests == files.length)
+                {
+                    filesDataCallback(filesData);
+                }
+            });
+        })(i);
     }
-    client.send();
+}
+
+$(() => {
+    getFiles(["grammer.jison", "python.py"], (filesData) => {
+        $("#grammer").val(filesData["grammer.jison"]);
+        $("#input").val(filesData["python.py"]);
+        run();
+    });
 });
 },{"jison":20}],5:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
@@ -5569,7 +5577,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/escodegen/-/escodegen-1.3.3.tgz",
   "_shasum": "f024016f5a88e046fd12005055e939802e6c5f23",
   "_spec": "escodegen@1.3.x",
-  "_where": "C:\\Users\\Callum\\Documents\\git\\PythonParseTest\\node_modules\\jison",
+  "_where": "C:\\Users\\callum\\Documents\\git\\context-free-glamour\\node_modules\\jison",
   "bin": {
     "esgenerate": "bin/esgenerate.js",
     "escodegen": "bin/escodegen.js"
@@ -10428,7 +10436,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/jison-lex/-/jison-lex-0.3.4.tgz",
   "_shasum": "81ca28d84f84499dfa8c594dcde3d8a3f26ec7a5",
   "_spec": "jison-lex@0.3.x",
-  "_where": "C:\\Users\\Callum\\Documents\\git\\PythonParseTest\\node_modules\\jison",
+  "_where": "C:\\Users\\callum\\Documents\\git\\context-free-glamour\\node_modules\\jison",
   "author": {
     "name": "Zach Carter",
     "email": "zach@carter.name",
@@ -13215,7 +13223,7 @@ module.exports={
   "_resolved": "https://registry.npmjs.org/jison/-/jison-0.4.18.tgz",
   "_shasum": "c68a6a54bfe7028fa40bcfc6cc8bbd9ed291f502",
   "_spec": "jison",
-  "_where": "C:\\Users\\Callum\\Documents\\git\\PythonParseTest",
+  "_where": "C:\\Users\\callum\\Documents\\git\\context-free-glamour",
   "author": {
     "name": "Zach Carter",
     "email": "zach@carter.name",

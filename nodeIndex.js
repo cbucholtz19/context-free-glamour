@@ -22,21 +22,29 @@ window.run = () =>
     document.getElementById("output").innerHTML = window.output;
 }
 
-window.addEventListener('DOMContentLoaded', (event) => {
-    var client = new XMLHttpRequest();
-    client.open('GET', 'grammer.jison');
-    client.onreadystatechange = function()
+function getFiles(files, filesDataCallback)
+{
+    var filesData = {};
+    var completedRequests = 0;
+    for(var i = 0; i < files.length; i++)
     {
-        var client2 = new XMLHttpRequest();
-        client2.open('GET', 'python.py');
-        client2.onreadystatechange = function()
-        {
-            document.getElementById("grammer").value = client.responseText;
-            document.getElementById("input").value = client2.responseText;
-
-            run();
-        }
-        client2.send();
+        ((i) => {
+            $.get(files[i], (data) => {
+                filesData[files[i]] = data;
+                completedRequests++;
+                if(completedRequests == files.length)
+                {
+                    filesDataCallback(filesData);
+                }
+            });
+        })(i);
     }
-    client.send();
+}
+
+$(() => {
+    getFiles(["grammer.jison", "python.py"], (filesData) => {
+        $("#grammer").val(filesData["grammer.jison"]);
+        $("#input").val(filesData["python.py"]);
+        run();
+    });
 });
