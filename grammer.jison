@@ -1,19 +1,8 @@
 %lex
 
-<<<<<<< HEAD
-%s COMMENT
-
-%%
-
-"#"                         { this.begin('COMMENT') }
-<COMMENT>\n                 { this.begin('INITIAL') }
-<COMMENT>.                  { ; }
-
-=======
 %%
 
 [#][^;]*                    return "COMMENT"
->>>>>>> ab6af39fc996d32193a88c254c283423c4949986
 \s+                         return ''
 \n                          return ''
 \t                          return ''
@@ -60,28 +49,22 @@
 %%
 
 line
-<<<<<<< HEAD
-    : line VARIABLE '+=' e
+    : line VARIABLE '+=' e NEWLINE
         {variables[$2] += $4}
-    | line VARIABLE '-=' e
+    | line VARIABLE '-=' e NEWLINE
         {variables[$2] -= $4}
-    | line VARIABLE '**=' e
+    | line VARIABLE '**=' e NEWLINE
         {variables[$2] **= $4}
-    | line VARIABLE '*=' e
+    | line VARIABLE '*=' e NEWLINE
         {variables[$2] *= $4}
-    | line VARIABLE '/=' e
+    | line VARIABLE '/=' e NEWLINE
         {variables[$2] /= $4}
-    | line VARIABLE '%=' e
+    | line VARIABLE '%=' e NEWLINE
         {variables[$2] %= $4}
-    | line VARIABLE '=' e
+    | line VARIABLE '=' e NEWLINE
         {variables[$2] = $4;}
 
-    | line PRINT e
-=======
-    : line VARIABLE '=' e NEWLINE
-        {variables[$2] = $4;}
     | line PRINT e NEWLINE
->>>>>>> ab6af39fc996d32193a88c254c283423c4949986
         {pythonOutput($3);}
     | line COMMENT NEWLINE
         {}
