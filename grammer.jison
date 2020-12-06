@@ -26,14 +26,14 @@
 
 "+"                         return '+'
 "-"                         return '-'
-"**"                        return '^'
+"**"                        return '**'
 "*"                         return '*'
 "/"                         return '/'
 "%"                         return '%'
 
 ":"                         return ':'
-"if"                        return 'if'
-"else"                      return 'else'
+"if"                        return 'IF'
+"else"                      return 'ELSE'
 
 "print"                     return "PRINT"
 ["].*["]                    return "STRING"
@@ -43,6 +43,11 @@
 .                           return "UNKNOWN_TOKEN"
 
 /lex
+
+%left '==' '<=' '>=' '<' '>' '!='
+%left '+' '-'
+%left '*' '/' '%'
+%left '**'
 
 %start line
 
@@ -105,7 +110,7 @@ e
         {$$ = $1 != $3}
 
     | NUMBER
-        {$$ = Number($1);}
+        {$$ = Number($1);} //parse string to number
     | VARIABLE
         {$$ = variables[$1];}
     | STRING

@@ -12,6 +12,11 @@ print(my_number)
 my_string = "Hello World."
 print(my_string)
 
+# math test
+x = 4 + 5 - 2**4
+x *= 2
+print(x - 3)
+
 # this is a boolean variable
 my_bool = (1 == 1)
 print(my_bool)
