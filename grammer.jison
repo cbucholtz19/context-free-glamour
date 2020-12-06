@@ -2,9 +2,9 @@
 
 %%
 
-[#][^;]*                       return "COMMENT"
+[#][^(\r\n|\r|\n)]*                       return "COMMENT"
+[\r\n|\r|\n]                   return "NEWLINE"
 \s+                            return ''
-\n                             return ''
 \t                             return ''
 "("                            return '('
 ")"                            return ')'
@@ -44,7 +44,8 @@
 ["][^"]*["]                    return "STRING"
 [0-9]+("."[0-9]+)?\b           return "NUMBER"
 [a-zA-Z|_]([a-zA-Z]|[0-9]|_)*  return "VARIABLE"
-';'                            return 'NEWLINE'
+// ';'                            return 'NEWLINE'
+<<EOF>>                        return "EOF"
 .                              return "UNKNOWN_TOKEN"
 
 /lex
@@ -59,31 +60,38 @@
 %%
 
 line
-    : line VARIABLE '+=' e NEWLINE
+    : line VARIABLE '+=' e lineend
         {variables[$2] += $4}
-    | line VARIABLE '-=' e NEWLINE
+    | line VARIABLE '-=' e lineend
         {variables[$2] -= $4}
-    | line VARIABLE '**=' e NEWLINE
+    | line VARIABLE '**=' e lineend
         {variables[$2] **= $4}
-    | line VARIABLE '*=' e NEWLINE
+    | line VARIABLE '*=' e lineend
         {variables[$2] *= $4}
-    | line VARIABLE '/=' e NEWLINE
+    | line VARIABLE '/=' e lineend
         {variables[$2] /= $4}
-    | line VARIABLE '%=' e NEWLINE
+    | line VARIABLE '%=' e lineend
         {variables[$2] %= $4}
-    | line VARIABLE '=' e NEWLINE
+    | line VARIABLE '=' e lineend
         {variables[$2] = $4;}
 
-    | line DEBUG_VARIABLES NEWLINE
+    | line DEBUG_VARIABLES lineend
         {console.dir(variables);}
 
-    | line PRINT e NEWLINE
+    | line PRINT e lineend
         {pythonOutput($3);}
-    | line COMMENT NEWLINE
+    | line COMMENT lineend
         {}
-    | line NEWLINE
+    | line lineend
         {}
     |
+        {}
+    ;
+
+lineend
+    : NEWLINE
+        {}
+    | EOF
         {}
     ;
 

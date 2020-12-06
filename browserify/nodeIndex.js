@@ -735,9 +735,6 @@ window.run = () =>
     var grammerText = document.getElementById("grammer").value;
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
-
-    inputText = inputText.replace(/(?:\r\n|\r|\n)/g, ';');
-    inputText += ";";
     
     parser.parse(inputText);
 
@@ -769,10 +766,6 @@ $(() => {
         $("#input").val(filesData["python.py"]);
         run();
     });
-    if(0)
-        console.log("yee");
-    else
-        console.log("ooo");
 });
 },{"jison":20}],5:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
