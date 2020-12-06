@@ -735,6 +735,9 @@ window.run = () =>
     var grammerText = document.getElementById("grammer").value;
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
+
+    inputText = inputText.replace(/(?:\r\n|\r|\n)/g, ';');
+    inputText += ";";
     
     parser.parse(inputText);
 
