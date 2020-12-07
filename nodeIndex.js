@@ -217,10 +217,30 @@ function getFiles(files, filesDataCallback)
     }
 }
 
+window.sampleScript = () =>
+{
+    $("#input").val(window.sampleScriptText);
+    run();
+}
+
+window.sampleError = () =>
+{
+    $("#input").val(window.sampleErrorText);
+    run();
+}
+
+window.clearInput = () =>
+{
+    $("#input").val("");
+    run();
+}
+
 $(() => {
-    getFiles(["grammer.jison", "python.py"], (filesData) => {
+    getFiles(["grammer.jison", "python.py", "pythonSyntaxError.py"], (filesData) => {
         $("#input").val(filesData["python.py"]);
         window.grammerText = filesData["grammer.jison"];
+        window.sampleScriptText = filesData["python.py"];
+        window.sampleErrorText = filesData["pythonSyntaxError.py"];
         run();
     });
 });
