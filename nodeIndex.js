@@ -45,6 +45,8 @@ function processNode(node)
         case "%=":
             eval("variables[node.action[1]] " + node.action[0] + " processNode(node.action[2])");
             break;
+        case "-pre":
+            return -processNode(node.action[1]);
         case "variable":
             return window.variables[node.action[1]];
         case "set_variable":
@@ -52,18 +54,15 @@ function processNode(node)
             window.variables[node.action[1]] = expression;
             break;
         case "if":
-            var expression = processNode(node.action[1]);
-            if(expression)
+            if(processNode(node.action[1]))
                 processNode(node.action[2]);
             else
                 processNode(node.action[3]);
             break;
         case "while":
-            var expression = processNode(node.action[1]);
-            while(expression)
+            while(processNode(node.action[1]))
             {
                 processNode(node.action[2]);
-                expression = processNode(node.action[1]);
             }
             break;
         default:
@@ -127,7 +126,7 @@ function addCurlyBraces(text)
             line = "}" + line;
             blocks.pop();
         }
-        if(line.charAt(line.length - 1) == ':')
+        if(line.charAt(line.length - 1) == ':' && line.search(/#/) == -1)
         {
             line += "{";
             blocks.push(numTabs + 1);
@@ -144,15 +143,15 @@ function addCurlyBraces(text)
     return outputText;
 }
 
-window.run = () =>
+window.run = (grammerText) =>
 {
     window.variables = {};
     window.output = "";
 
-    var grammerText = document.getElementById("grammer").value;
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
     inputText = addCurlyBraces(inputText);
+    console.log(inputText);
     
     var rootNode = parser.parse(inputText);
     processNode(rootNode);
@@ -181,8 +180,7 @@ function getFiles(files, filesDataCallback)
 
 $(() => {
     getFiles(["grammer.jison", "python.py"], (filesData) => {
-        $("#grammer").val(filesData["grammer.jison"]);
         $("#input").val(filesData["python.py"]);
-        run();
+        run(filesData["grammer.jison"]);
     });
 });
