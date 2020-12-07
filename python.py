@@ -61,7 +61,7 @@ print("EQ2: "+str(eq2))
 
 # Uncomment this code block below for BONUS (Syntax error)
 # This is just a simple example...
-#if(eq2 == 0)
+# if(eq2 == 0)
 #    print("This code shouldn't run")
-#else
+# else
 #    print "this one as well!"

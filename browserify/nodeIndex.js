@@ -740,7 +740,6 @@ function processNode(node)
         case "print":
             var expression = processNode(node.action[1]);
             window.output += expression + "\n";
-            console.log(expression);
             break;
         case "str":
             return String(processNode(node.action[1]));
@@ -905,10 +904,20 @@ window.run = (grammerText) =>
     var inputText = document.getElementById("input").value;
     inputText = addCurlyBraces(inputText);
     
-    var rootNode = parser.parse(inputText);
-    processNode(rootNode);
-
-    $("#output").html(window.output);
+    try
+    {
+        var rootNode = parser.parse(inputText);
+        processNode(rootNode);
+        $("#output").html(window.output);
+    }
+    catch(e)
+    {
+        e = e.toString();
+        e = nextLine(e)[0];
+        for(var i = 0; i < 2; i++)
+            e = e.replace(/\r\n|\r|\n/, "");
+        $("#output").html(e);
+    }
 }
 
 function getFiles(files, filesDataCallback)
