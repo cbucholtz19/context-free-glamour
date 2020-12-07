@@ -39,6 +39,7 @@
 ":"                            return ':'
 "if"                           return 'IF'
 "else"                         return 'ELSE'
+"while"                        return "WHILE"
 
 "print"                        return "PRINT"
 "str"                          return "STR"
@@ -84,8 +85,13 @@ line
         {$$ = {next : $line, action : ["print", $e]}}
     // | IF e '{' line '}' ELSE '{' line '}' lineend line
     //     {$$ = {next : $11, action : ["if", $e, $4, $8]}}
+
     | IF e ':' optionalnewline '{' line '}' line
         {$$ = {next : $8, action : ["if", $e, $6, null]}}
+
+    | WHILE e ':' optionalnewline '{' line '}' line
+        {$$ = {next : $8, action : ["while", $e, $6]}}
+
     | COMMENT lineend line
         {$$ = {next : $line, action : ["no_op"]}}
     | lineend line

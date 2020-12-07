@@ -56,6 +56,14 @@ function processNode(node)
             else
                 processNode(node.action[3]);
             break;
+        case "while":
+            var expression = processNode(node.action[1]);
+            while(expression)
+            {
+                processNode(node.action[2]);
+                expression = processNode(node.action[1]);
+            }
+            break;
         default:
             console.log("Unknown node: " + node.action[0]);
             return null;
@@ -143,12 +151,11 @@ window.run = () =>
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
     inputText = addCurlyBraces(inputText);
-    console.log(inputText);
     
     var rootNode = parser.parse(inputText);
     processNode(rootNode);
 
-    document.getElementById("output").innerHTML = window.output;
+    $("#output").html(window.output);
 }
 
 function getFiles(files, filesDataCallback)

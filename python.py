@@ -1,4 +1,4 @@
-x = 7
-y = 5
-if x > y:
-    print("x is larger than y")
+x = 5
+while x >= 2:
+    print("x: " + str(x))
+    x -= 1
