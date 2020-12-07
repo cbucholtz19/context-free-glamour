@@ -8,6 +8,8 @@
 \t                             return ''
 "("                            return '('
 ")"                            return ')'
+"{"                            return "{"
+"}"                            return "}"
 
 "<="                           return '<='
 ">="                           return '>='
@@ -40,6 +42,7 @@
 
 "print"                        return "PRINT"
 "str"                          return "STR"
+"debug"                        return "DEBUG"
 "debug_variables"              return "DEBUG_VARIABLES"
 ["][^"]*["]                    return "STRING"
 [0-9]+("."[0-9]+)?\b           return "NUMBER"
@@ -55,37 +58,49 @@
 %left '*' '/' '%'
 %left '**'
 
-%start line
+%start program
 
 %%
 
+program
+    : line
+        {return $line}
+    ;
+
 line
-    : line VARIABLE '+=' e lineend
-        {variables[$2] += $4}
-    | line VARIABLE '-=' e lineend
-        {variables[$2] -= $4}
-    | line VARIABLE '**=' e lineend
-        {variables[$2] **= $4}
-    | line VARIABLE '*=' e lineend
-        {variables[$2] *= $4}
-    | line VARIABLE '/=' e lineend
-        {variables[$2] /= $4}
-    | line VARIABLE '%=' e lineend
-        {variables[$2] %= $4}
-    | line VARIABLE '=' e lineend
-        {variables[$2] = $4;}
+    // : line VARIABLE '+=' e lineend
+    //     {variables[$2] += $4}
+    // | line VARIABLE '-=' e lineend
+    //     {variables[$2] -= $4}
+    // | line VARIABLE '**=' e lineend
+    //     {variables[$2] **= $4}
+    // | line VARIABLE '*=' e lineend
+    //     {variables[$2] *= $4}
+    // | line VARIABLE '/=' e lineend
+    //     {variables[$2] /= $4}
+    // | line VARIABLE '%=' e lineend
+    //     {variables[$2] %= $4}
+    // : line VARIABLE '=' e lineend
+    //     {$$ = {next : [null, null], action : ["set_variable", $e]}}
 
-    | line DEBUG_VARIABLES lineend
-        {console.dir(variables);}
+    // | line DEBUG_VARIABLES lineend
+    //     {console.dir(variables);}
 
-    | line PRINT e lineend
-        {pythonOutput($3);}
-    | line COMMENT lineend
-        {}
-    | line lineend
-        {}
+    : PRINT '(' e ')' lineend line
+        {$$ = {next : $line, action : ["print", $e]}}
+    
+    | IF e '{' line '}' ELSE '{' line '}' lineend line
+        {$$ = {next : $11, action : ["if", $e, $4, $8]}}
+
+    // | line DEBUG lineend
+    //     {$$ = {next : [$1, null], action : ["debug"]}}
+
+    // | line COMMENT lineend
+    //     {}
+    | lineend line
+        {$$ = {next : $line, action : ["no_op"]}}
     |
-        {}
+        {$$ = {next : null, action : ["no_op"]}}
     ;
 
 lineend
@@ -96,47 +111,47 @@ lineend
     ;
 
 e
-    : '(' e ')'
-        {$$ = $2;}
+    // : '(' e ')'
+    //     {$$ = $2;}
     
-    | e '+' e
-        {$$ = $1 + $3}
-    | e '-' e
-        {$$ = $1 - $3}
-    | e '**' e
-        {$$ = $1 ** $3}
-    | e '*' e
-        {$$ = $1 * $3}
-    | e '/' e
-        {$$ = $1 / $3}
-    | e '%' e
-        {$$ = $1 % $3}
+    // | e '+' e
+    //     {$$ = ["+", $1, $3]}
+    // | e '-' e
+    //     {$$ = $1 - $3}
+    // | e '**' e
+    //     {$$ = $1 ** $3}
+    // | e '*' e
+    //     {$$ = $1 * $3}
+    // | e '/' e
+    //     {$$ = $1 / $3}
+    // | e '%' e
+    //     {$$ = $1 % $3}
 
-    | e '<=' e
-        {$$ = $1 <= $3}
-    | e '>=' e
-        {$$ = $1 >= $3}
-    | e '<' e
-        {$$ = $1 < $3}
-    | e '>' e
-        {$$ = $1 > $3}
-    | e '==' e
-        {$$ = $1 == $3}
-    | e '!=' e
-        {$$ = $1 != $3}
+    // | e '<=' e
+    //     {$$ = $1 <= $3}
+    // | e '>=' e
+    //     {$$ = $1 >= $3}
+    // | e '<' e
+    //     {$$ = $1 < $3}
+    // | e '>' e
+    //     {$$ = $1 > $3}
+    // | e '==' e
+    //     {$$ = $1 == $3}
+    // | e '!=' e
+    //     {$$ = $1 != $3}
 
-    | NUMBER
-        {$$ = Number($1);} //parse string to number
-    | VARIABLE
-        {$$ = variables[$1];}
-    | STRING
-        {$$ = $1.slice(1, -1);} //take off the quotes
+    : NUMBER
+        {$$ = {next : null, action : ["number", Number($1)]}} //parse string to number
+    // | VARIABLE
+    //     {$$ = {next : null, action : ["variable", $VARIABLE]}}
+    // | STRING
+    //     {$$ = ["string", $1.slice(1, -1)]} //take off the quotes
     
     | TRUE
-        {$$ = true}
+        {$$ = {next : null, action : ["boolean", true]}}
     | FALSE
-        {$$ = false}
+        {$$ = {next : null, action : ["boolean", false]}}
     
-    | STR '(' e ')'
-        {$$ = $3}
+    // | STR '(' e ')'
+    //     {$$ = $3}
     ;

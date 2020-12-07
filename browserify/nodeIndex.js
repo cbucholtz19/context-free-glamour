@@ -722,9 +722,34 @@ process.umask = function() { return 0; };
 },{}],4:[function(require,module,exports){
 var Parser = require("jison").Parser;
 
-window.pythonOutput = (text) =>
+function processNode(node)
 {
-    window.output += text + "\n";
+    if(node == null)
+        return null;
+    switch(node.action[0])
+    {
+        case "no_op":
+            break;
+        case "number":
+            return node.action[1];
+        case "boolean":
+            return node.action[1];
+        case "print":
+            var expression = processNode(node.action[1]);
+            window.output += expression + "\n";
+            break;
+        case "if":
+            var expression = processNode(node.action[1]);
+            if(expression)
+                processNode(node.action[2]);
+            else
+                processNode(node.action[3]);
+            break;
+        default:
+            console.log("Unknown node: " + node.action[0]);
+            return null;
+    }
+    processNode(node.next);
 }
 
 window.run = () =>
@@ -736,7 +761,9 @@ window.run = () =>
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
     
-    parser.parse(inputText);
+    var output = parser.parse(inputText);
+    console.dir(output);
+    processNode(output);
 
     document.getElementById("output").innerHTML = window.output;
 }
