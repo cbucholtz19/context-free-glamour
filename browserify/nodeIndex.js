@@ -731,12 +731,28 @@ function processNode(node)
         case "no_op":
             break;
         case "number":
-            return node.action[1];
         case "boolean":
+        case "string":
             return node.action[1];
         case "print":
             var expression = processNode(node.action[1]);
             window.output += expression + "\n";
+            break;
+        case "+":
+        case "-":
+        case "**":
+        case "*":
+        case "/":
+        case "%":
+        case "<=":
+        case ">=":
+        case "<":
+        case ">":
+        case "==":
+        case "!=":
+            var e1 = processNode(node.action[1]);
+            var e2 = processNode(node.action[2]);
+            return eval("e1 " + node.action[0] + " e2");
             break;
         case "if":
             var expression = processNode(node.action[1]);
