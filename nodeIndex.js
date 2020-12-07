@@ -1,3 +1,6 @@
+const { resolveTxt } = require("dns");
+const { copyFileSync } = require("fs");
+
 var Parser = require("jison").Parser;
 
 function processNode(node)
@@ -60,6 +63,77 @@ function processNode(node)
     processNode(node.next);
 }
 
+function insertAt(text, index, insertText)
+{
+    return text.slice(0, index + 1) + insertText + text.slice(index + 1);
+}
+
+function nextLine(text)
+{
+    var lineEndIndex = text.search(/\r\n|\r|\n/);
+    if(lineEndIndex == -1)
+    {
+        line = text;
+        text = "";
+        return [text, line];
+    }
+    line = text.slice(0, lineEndIndex);
+    text = text.slice(lineEndIndex + 1);
+    return [text, line];
+}
+
+function getNumTabs(line)
+{
+    var numTabs = 0;
+    for(var i = 0; i < line.length; i++)
+    {
+        if(line.charAt(i) == '\t')
+        {
+            numTabs++;
+        }
+        else
+        {
+            return numTabs;
+        }
+    }
+    return numTabs;
+}
+
+function addCurlyBraces(text)
+{
+    outputText = "";
+    text = text.replaceAll("    ", "\t");
+
+    var blocks = [];
+    blocks.push(0);
+    while(text != "")
+    {
+        var data = nextLine(text);
+        text = data[0];
+        var line = data[1];
+        var numTabs = getNumTabs(line);
+        while(numTabs < blocks[blocks.length - 1])
+        {
+            line = "}" + line;
+            blocks.pop();
+        }
+        if(line.charAt(line.length - 1) == ':')
+        {
+            line += "{";
+            blocks.push(numTabs + 1);
+        }
+        outputText += line + "\r\n";
+    }
+
+    while(blocks.length > 1)
+    {
+        outputText += "}";
+        blocks.pop();
+    }
+
+    return outputText;
+}
+
 window.run = () =>
 {
     window.variables = {};
@@ -68,6 +142,8 @@ window.run = () =>
     var grammerText = document.getElementById("grammer").value;
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
+    inputText = addCurlyBraces(inputText);
+    console.log(inputText);
     
     var rootNode = parser.parse(inputText);
     processNode(rootNode);

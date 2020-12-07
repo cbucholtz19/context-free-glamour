@@ -82,8 +82,10 @@ line
 
     | PRINT '(' e ')' lineend line
         {$$ = {next : $line, action : ["print", $e]}}
-    | IF e '{' line '}' ELSE '{' line '}' lineend line
-        {$$ = {next : $11, action : ["if", $e, $4, $8]}}
+    // | IF e '{' line '}' ELSE '{' line '}' lineend line
+    //     {$$ = {next : $11, action : ["if", $e, $4, $8]}}
+    | IF e ':' optionalnewline '{' line '}' line
+        {$$ = {next : $8, action : ["if", $e, $6, null]}}
     | COMMENT lineend line
         {$$ = {next : $line, action : ["no_op"]}}
     | lineend line
@@ -96,6 +98,13 @@ lineend
     : NEWLINE
         {}
     | EOF
+        {}
+    ;
+
+optionalnewline
+    : NEWLINE
+        {}
+    |
         {}
     ;
 
