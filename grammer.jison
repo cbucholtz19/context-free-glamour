@@ -35,6 +35,8 @@
 
 "True"                         return "TRUE"
 "False"                        return "FALSE"
+"and"                          return "AND"
+"or"                           return "OR"
 
 ":"                            return ':'
 "if"                           return 'IF'
@@ -52,6 +54,7 @@
 /lex
 
 %left '==' '<=' '>=' '<' '>' '!='
+%left AND OR
 %left '+' '-'
 %left '*' '/' '%'
 %left '**'
@@ -83,11 +86,11 @@ line
 
     | PRINT '(' e ')' lineend line
         {$$ = {next : $line, action : ["print", $e]}}
-    // | IF e '{' line '}' ELSE '{' line '}' lineend line
-    //     {$$ = {next : $11, action : ["if", $e, $4, $8]}}
 
     | IF e ':' optionalnewline '{' line '}' line
         {$$ = {next : $8, action : ["if", $e, $6, null]}}
+    | IF e ':' optionalnewline '{' line '}' ELSE ':' optionalnewline '{' line '}' line
+        {$$ = {next : $14, action : ["if", $e, $6, $12]}}
 
     | WHILE e ':' optionalnewline '{' line '}' line
         {$$ = {next : $8, action : ["while", $e, $6]}}
@@ -117,6 +120,11 @@ optionalnewline
 e
     : '(' e ')'
         {$$ = $2;}
+
+    | e AND e
+        {$$ = {next : null, action : ["&&", $1, $3]}}
+    | e OR e
+        {$$ = {next : null, action : ["||", $1, $3]}}
     
     | e '+' e
         {$$ = {next : null, action : ["+", $1, $3]}}

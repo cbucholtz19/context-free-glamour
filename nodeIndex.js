@@ -31,6 +31,8 @@ function processNode(node)
         case ">":
         case "==":
         case "!=":
+        case "&&":
+        case "||":
             var e1 = processNode(node.action[1]);
             var e2 = processNode(node.action[2]);
             return eval("e1 " + node.action[0] + " e2");
