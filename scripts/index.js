@@ -49,6 +49,9 @@ window.run = () =>
     //get the input text
     var inputText = document.getElementById("input").value;
 
+    //replace all 4 spaces with a tab
+    inputText = inputText.replaceAll("    ", "\t");
+
     //insert curly braces based on the indentation
     inputText = addCurlyBraces(inputText);
     

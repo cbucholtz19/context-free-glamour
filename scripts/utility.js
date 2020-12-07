@@ -1,3 +1,4 @@
+//takes a string, returns the first line and the other lines
 function nextLine(text)
 {
     var lineEndIndex = text.search(/\r\n|\r|\n/);
@@ -12,6 +13,7 @@ function nextLine(text)
     return [text, line];
 }
 
+//get the number of preceding tabs on a line
 function getNumTabs(line)
 {
     var numTabs = 0;
@@ -29,6 +31,7 @@ function getNumTabs(line)
     return numTabs;
 }
 
+//gets the string data of multiple files in an array
 function getFiles(files, filesDataCallback)
 {
     var filesData = {};

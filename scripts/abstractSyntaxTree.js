@@ -1,7 +1,11 @@
+//starting with the root node, repulsively traverse the abstract syntax tree
 function processNode(node)
 {
+    //if there is no node or the global break variable is set, return
     if(node == null || window.break)
         return null;
+    
+    //switch based on the AST node type defined from the grammar
     switch(node.action[0])
     {
         case "no_op":
@@ -93,5 +97,7 @@ function processNode(node)
             console.log("Unknown node: " + node.action[0]);
             return null;
     }
+
+    //recursively process the next node
     processNode(node.next);
 }

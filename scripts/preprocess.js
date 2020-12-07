@@ -1,7 +1,7 @@
+//takes python code and returns the same code with curly braces added
 function addCurlyBraces(text)
 {
     outputText = "";
-    text = text.replaceAll("    ", "\t");
 
     var blocks = [];
     blocks.push(0);
