@@ -47,9 +47,11 @@
 "range"                        return "RANGE"
 "in"                           return "IN"
 ","                            return ','
+"break"                        return "BREAK"
 
 "print"                        return "PRINT"
 "str"                          return "STR"
+"int"                          return "INT"
 ["][^"]*["]                    return "STRING"
 [0-9]+("."[0-9]+)?\b           return "NUMBER"
 [a-zA-Z|_]([a-zA-Z]|[0-9]|_)*  return "VARIABLE"
@@ -100,6 +102,9 @@ line
     
     | FOR VARIABLE IN RANGE '(' e ',' e ')' ':' '{' line '}' line
         {$$ = {next : $14, action : ["for", $6, $8, $VARIABLE, $12]}}
+    
+    | BREAK lineend line
+        {$$ = {next : $line, action : ["break"]}}
 
     | COMMENT lineend line
         {$$ = {next : $line, action : ["no_op"]}}
@@ -176,5 +181,7 @@ e
         {$$ = {next : null, action : ["boolean", false]}}
     
     | STR '(' e ')'
-        {$$ = $3}
+        {$$ = {next : null, action : ["str", $e]}}
+    | INT '(' e ')'
+        {$$ = {next : null, action : ["int", $e]}}
     ;

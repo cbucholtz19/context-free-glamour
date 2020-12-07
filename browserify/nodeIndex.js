@@ -727,7 +727,7 @@ var Parser = require("jison").Parser;
 
 function processNode(node)
 {
-    if(node == null)
+    if(node == null || window.break)
         return null;
     switch(node.action[0])
     {
@@ -740,7 +740,12 @@ function processNode(node)
         case "print":
             var expression = processNode(node.action[1]);
             window.output += expression + "\n";
+            console.log(expression);
             break;
+        case "str":
+            return String(processNode(node.action[1]));
+        case "int":
+            return Math.floor(processNode(node.action[1]));
         case "+":
         case "-":
         case "**":
@@ -788,17 +793,29 @@ function processNode(node)
             while(processNode(node.action[1]))
             {
                 processNode(node.action[2]);
+                if(window.break)
+                {
+                    window.break = false;
+                    break;
+                }
             }
             break;
         case "for":
             var from = processNode(node.action[1]);
             var to = processNode(node.action[2]);
-            console.log(from + " " + to);
             for(var i = from; i < to; i++)
             {
                 window.variables[node.action[3]] = i;
                 processNode(node.action[4]);
+                if(window.break)
+                {
+                    window.break = false;
+                    break;
+                }
             }
+            break;
+        case "break":
+            window.break = true;
             break;
         default:
             console.log("Unknown node: " + node.action[0]);
@@ -882,6 +899,7 @@ window.run = (grammerText) =>
 {
     window.variables = {};
     window.output = "";
+    window.break = false;
 
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
