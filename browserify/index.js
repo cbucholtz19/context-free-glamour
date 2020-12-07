@@ -720,253 +720,6 @@ process.chdir = function (dir) {
 process.umask = function() { return 0; };
 
 },{}],4:[function(require,module,exports){
-const { resolveTxt } = require("dns");
-const { copyFileSync } = require("fs");
-
-var Parser = require("jison").Parser;
-
-function processNode(node)
-{
-    if(node == null || window.break)
-        return null;
-    switch(node.action[0])
-    {
-        case "no_op":
-            break;
-        case "number":
-        case "boolean":
-        case "string":
-            return node.action[1];
-        case "print":
-            var expression = processNode(node.action[1]);
-            window.output += expression + "\n";
-            break;
-        case "str":
-            return String(processNode(node.action[1]));
-        case "int":
-            return Math.floor(processNode(node.action[1]));
-        case "+":
-        case "-":
-        case "**":
-        case "*":
-        case "/":
-        case "%":
-        case "<=":
-        case ">=":
-        case "<":
-        case ">":
-        case "==":
-        case "!=":
-        case "&&":
-        case "||":
-            var e1 = processNode(node.action[1]);
-            var e2 = processNode(node.action[2]);
-            return eval("e1 " + node.action[0] + " e2");
-            break;
-        case "+=":
-        case "-=":
-        case "**=":
-        case "*=":
-        case "/=":
-        case "%=":
-            eval("variables[node.action[1]] " + node.action[0] + " processNode(node.action[2])");
-            break;
-        case "-pre":
-            return -processNode(node.action[1]);
-        case "variable":
-            return window.variables[node.action[1]];
-        case "set_variable":
-            var expression = processNode(node.action[2]);
-            window.variables[node.action[1]] = expression;
-            break;
-        case "if":
-            if(processNode(node.action[1]))
-                processNode(node.action[2]);
-            else
-                processNode(node.action[3]);
-            break;
-        case "else":
-            processNode(node.action[1]);
-            break;
-        case "while":
-            while(processNode(node.action[1]))
-            {
-                processNode(node.action[2]);
-                if(window.break)
-                {
-                    window.break = false;
-                    break;
-                }
-            }
-            break;
-        case "for":
-            var from = processNode(node.action[1]);
-            var to = processNode(node.action[2]);
-            for(var i = from; i < to; i++)
-            {
-                window.variables[node.action[3]] = i;
-                processNode(node.action[4]);
-                if(window.break)
-                {
-                    window.break = false;
-                    break;
-                }
-            }
-            break;
-        case "break":
-            window.break = true;
-            break;
-        default:
-            console.log("Unknown node: " + node.action[0]);
-            return null;
-    }
-    processNode(node.next);
-}
-
-function insertAt(text, index, insertText)
-{
-    return text.slice(0, index + 1) + insertText + text.slice(index + 1);
-}
-
-function nextLine(text)
-{
-    var lineEndIndex = text.search(/\r\n|\r|\n/);
-    if(lineEndIndex == -1)
-    {
-        line = text;
-        text = "";
-        return [text, line];
-    }
-    line = text.slice(0, lineEndIndex);
-    text = text.slice(lineEndIndex + 1);
-    return [text, line];
-}
-
-function getNumTabs(line)
-{
-    var numTabs = 0;
-    for(var i = 0; i < line.length; i++)
-    {
-        if(line.charAt(i) == '\t')
-        {
-            numTabs++;
-        }
-        else
-        {
-            return numTabs;
-        }
-    }
-    return numTabs;
-}
-
-function addCurlyBraces(text)
-{
-    outputText = "";
-    text = text.replaceAll("    ", "\t");
-
-    var blocks = [];
-    blocks.push(0);
-    while(text != "")
-    {
-        var data = nextLine(text);
-        text = data[0];
-        var line = data[1];
-        var numTabs = getNumTabs(line);
-        while(numTabs < blocks[blocks.length - 1])
-        {
-            line = "}" + line;
-            blocks.pop();
-        }
-        if(line.charAt(line.length - 1) == ':' && line.search(/#/) == -1)
-        {
-            line += "{";
-            blocks.push(numTabs + 1);
-        }
-        outputText += line + "\r\n";
-    }
-
-    while(blocks.length > 1)
-    {
-        outputText += "}";
-        blocks.pop();
-    }
-
-    return outputText;
-}
-
-window.run = () =>
-{
-    window.variables = {};
-    window.output = "";
-    window.break = false;
-
-    var parser = new Parser(window.grammerText);
-    var inputText = document.getElementById("input").value;
-    inputText = addCurlyBraces(inputText);
-    
-    try
-    {
-        var rootNode = parser.parse(inputText);
-        processNode(rootNode);
-        $("#output").html(window.output);
-    }
-    catch(e)
-    {
-        e = e.toString();
-        e = nextLine(e)[0];
-        for(var i = 0; i < 2; i++)
-            e = e.replace(/\r\n|\r|\n/, "");
-        $("#output").html(e);
-    }
-}
-
-function getFiles(files, filesDataCallback)
-{
-    var filesData = {};
-    var completedRequests = 0;
-    for(var i = 0; i < files.length; i++)
-    {
-        ((i) => {
-            $.get(files[i], (data) => {
-                filesData[files[i]] = data;
-                completedRequests++;
-                if(completedRequests == files.length)
-                {
-                    filesDataCallback(filesData);
-                }
-            });
-        })(i);
-    }
-}
-
-window.sampleScript = () =>
-{
-    $("#input").val(window.sampleScriptText);
-    run();
-}
-
-window.sampleError = () =>
-{
-    $("#input").val(window.sampleErrorText);
-    run();
-}
-
-window.clearInput = () =>
-{
-    $("#input").val("");
-    run();
-}
-
-$(() => {
-    getFiles(["grammer.jison", "python.py", "pythonSyntaxError.py"], (filesData) => {
-        $("#input").val(filesData["python.py"]);
-        window.grammerText = filesData["grammer.jison"];
-        window.sampleScriptText = filesData["python.py"];
-        window.sampleErrorText = filesData["pythonSyntaxError.py"];
-        run();
-    });
-});
-},{"dns":1,"fs":1,"jison":20}],5:[function(require,module,exports){
 /*! Copyright (c) 2011, Lloyd Hilaiel, ISC License */
 /*
  * This is the JSONSelect reference implementation, in javascript.  This
@@ -1540,7 +1293,7 @@ $(() => {
     exports.compile = compile;
 })(typeof exports === "undefined" ? (window.JSONSelect = {}) : exports);
 
-},{}],6:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 (function (process,__filename){(function (){
 /** vim: et:ts=4:sw=4:sts=4
  * @license amdefine 1.0.1 Copyright (c) 2011-2016, The Dojo Foundation All Rights Reserved.
@@ -1845,7 +1598,7 @@ function amdefine(module, requireFn) {
 module.exports = amdefine;
 
 }).call(this)}).call(this,require('_process'),"/node_modules/amdefine/amdefine.js")
-},{"_process":3,"path":2}],7:[function(require,module,exports){
+},{"_process":3,"path":2}],6:[function(require,module,exports){
 var bnf = require("./parser").parser,
     ebnf = require("./ebnf-transform"),
     jisonlex = require("lex-parser");
@@ -1888,7 +1641,7 @@ var parseLex = function (text) {
 };
 
 
-},{"./ebnf-transform":8,"./parser":9,"lex-parser":24}],8:[function(require,module,exports){
+},{"./ebnf-transform":7,"./parser":8,"lex-parser":23}],7:[function(require,module,exports){
 var EBNF = (function(){
     var parser = require('./transform-parser.js');
 
@@ -2025,7 +1778,7 @@ var EBNF = (function(){
 exports.transform = EBNF.transform;
 
 
-},{"./transform-parser.js":10}],9:[function(require,module,exports){
+},{"./transform-parser.js":9}],8:[function(require,module,exports){
 (function (process){(function (){
 /* parser generated by jison 0.4.11 */
 /*
@@ -2830,7 +2583,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this)}).call(this,require('_process'))
-},{"./ebnf-transform":8,"_process":3,"fs":1,"path":2}],10:[function(require,module,exports){
+},{"./ebnf-transform":7,"_process":3,"fs":1,"path":2}],9:[function(require,module,exports){
 (function (process){(function (){
 /* parser generated by jison 0.4.11 */
 /*
@@ -3462,7 +3215,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this)}).call(this,require('_process'))
-},{"_process":3,"fs":1,"path":2}],11:[function(require,module,exports){
+},{"_process":3,"fs":1,"path":2}],10:[function(require,module,exports){
 (function (global){(function (){
 /*
   Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
@@ -5749,7 +5502,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 /* vim: set sw=4 ts=4 et tw=80 : */
 
 }).call(this)}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./package.json":12,"estraverse":14,"esutils":17,"source-map":25}],12:[function(require,module,exports){
+},{"./package.json":11,"estraverse":13,"esutils":16,"source-map":24}],11:[function(require,module,exports){
 module.exports={
   "_from": "escodegen@1.3.x",
   "_id": "escodegen@1.3.3",
@@ -5840,7 +5593,7 @@ module.exports={
   "version": "1.3.3"
 }
 
-},{}],13:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 /*
   Copyright (C) 2013 Ariya Hidayat <ariya.hidayat@gmail.com>
   Copyright (C) 2013 Thaddee Tyl <thaddee.tyl@gmail.com>
@@ -9672,7 +9425,7 @@ parseStatement: true, parseSourceElement: true */
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],14:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 /*
   Copyright (C) 2012-2013 Yusuke Suzuki <utatane.tea@gmail.com>
   Copyright (C) 2012 Ariya Hidayat <ariya.hidayat@gmail.com>
@@ -10363,7 +10116,7 @@ parseStatement: true, parseSourceElement: true */
 }));
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],15:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 /*
   Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -10455,7 +10208,7 @@ parseStatement: true, parseSourceElement: true */
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{}],16:[function(require,module,exports){
+},{}],15:[function(require,module,exports){
 /*
   Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -10574,7 +10327,7 @@ parseStatement: true, parseSourceElement: true */
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{"./code":15}],17:[function(require,module,exports){
+},{"./code":14}],16:[function(require,module,exports){
 /*
   Copyright (C) 2013 Yusuke Suzuki <utatane.tea@gmail.com>
 
@@ -10608,7 +10361,7 @@ parseStatement: true, parseSourceElement: true */
 }());
 /* vim: set sw=4 ts=4 et tw=80 : */
 
-},{"./code":15,"./keyword":16}],18:[function(require,module,exports){
+},{"./code":14,"./keyword":15}],17:[function(require,module,exports){
 module.exports={
   "_from": "jison-lex@0.3.x",
   "_id": "jison-lex@0.3.4",
@@ -10683,7 +10436,7 @@ module.exports={
   "version": "0.3.4"
 }
 
-},{}],19:[function(require,module,exports){
+},{}],18:[function(require,module,exports){
 // Basic Lexer implemented using JavaScript regular expressions
 // MIT Licensed
 
@@ -11288,7 +11041,7 @@ RegExpLexer.generate = generate;
 module.exports = RegExpLexer;
 
 
-},{"./package.json":18,"lex-parser":24}],20:[function(require,module,exports){
+},{"./package.json":17,"lex-parser":23}],19:[function(require,module,exports){
 (function (process){(function (){
 // Jison, an LR(0), SLR(1), LARL(1), LR(1) Parser Generator
 // Zachary Carter <zach@carter.name>
@@ -13207,7 +12960,7 @@ return function Parser (g, options) {
 })();
 
 }).call(this)}).call(this,require('_process'))
-},{"../package.json":23,"./util/set":21,"./util/typal":22,"JSONSelect":5,"_process":3,"ebnf-parser":7,"escodegen":11,"esprima":13,"fs":1,"jison-lex":19,"path":2}],21:[function(require,module,exports){
+},{"../package.json":22,"./util/set":20,"./util/typal":21,"JSONSelect":4,"_process":3,"ebnf-parser":6,"escodegen":10,"esprima":12,"fs":1,"jison-lex":18,"path":2}],20:[function(require,module,exports){
 // Set class to wrap arrays
 
 var typal = require("./typal").typal;
@@ -13302,7 +13055,7 @@ if (typeof exports !== 'undefined')
     exports.Set = Set;
 
 
-},{"./typal":22}],22:[function(require,module,exports){
+},{"./typal":21}],21:[function(require,module,exports){
 /*
  * Introduces a typal object to make classical/prototypal patterns easier
  * Plus some AOP sugar
@@ -13394,7 +13147,7 @@ return {
 if (typeof exports !== 'undefined')
     exports.typal = typal;
 
-},{}],23:[function(require,module,exports){
+},{}],22:[function(require,module,exports){
 module.exports={
   "_from": "jison",
   "_id": "jison@0.4.18",
@@ -13480,7 +13233,7 @@ module.exports={
   "version": "0.4.18"
 }
 
-},{}],24:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function (process){(function (){
 /* parser generated by jison 0.4.6 */
 /*
@@ -14334,7 +14087,7 @@ if (typeof module !== 'undefined' && require.main === module) {
 }
 }
 }).call(this)}).call(this,require('_process'))
-},{"_process":3,"fs":1,"path":2}],25:[function(require,module,exports){
+},{"_process":3,"fs":1,"path":2}],24:[function(require,module,exports){
 /*
  * Copyright 2009-2011 Mozilla Foundation and contributors
  * Licensed under the New BSD license. See LICENSE.txt or:
@@ -14344,7 +14097,7 @@ exports.SourceMapGenerator = require('./source-map/source-map-generator').Source
 exports.SourceMapConsumer = require('./source-map/source-map-consumer').SourceMapConsumer;
 exports.SourceNode = require('./source-map/source-node').SourceNode;
 
-},{"./source-map/source-map-consumer":31,"./source-map/source-map-generator":32,"./source-map/source-node":33}],26:[function(require,module,exports){
+},{"./source-map/source-map-consumer":30,"./source-map/source-map-generator":31,"./source-map/source-node":32}],25:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14443,7 +14196,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":34,"amdefine":6}],27:[function(require,module,exports){
+},{"./util":33,"amdefine":5}],26:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14587,7 +14340,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./base64":28,"amdefine":6}],28:[function(require,module,exports){
+},{"./base64":27,"amdefine":5}],27:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14631,7 +14384,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":6}],29:[function(require,module,exports){
+},{"amdefine":5}],28:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -14713,7 +14466,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":6}],30:[function(require,module,exports){
+},{"amdefine":5}],29:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2014 Mozilla Foundation and contributors
@@ -14801,7 +14554,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./util":34,"amdefine":6}],31:[function(require,module,exports){
+},{"./util":33,"amdefine":5}],30:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -15378,7 +15131,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":26,"./base64-vlq":27,"./binary-search":29,"./util":34,"amdefine":6}],32:[function(require,module,exports){
+},{"./array-set":25,"./base64-vlq":26,"./binary-search":28,"./util":33,"amdefine":5}],31:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -15780,7 +15533,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./array-set":26,"./base64-vlq":27,"./mapping-list":30,"./util":34,"amdefine":6}],33:[function(require,module,exports){
+},{"./array-set":25,"./base64-vlq":26,"./mapping-list":29,"./util":33,"amdefine":5}],32:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -16196,7 +15949,7 @@ define(function (require, exports, module) {
 
 });
 
-},{"./source-map-generator":32,"./util":34,"amdefine":6}],34:[function(require,module,exports){
+},{"./source-map-generator":31,"./util":33,"amdefine":5}],33:[function(require,module,exports){
 /* -*- Mode: js; js-indent-level: 2; -*- */
 /*
  * Copyright 2011 Mozilla Foundation and contributors
@@ -16517,4 +16270,76 @@ define(function (require, exports, module) {
 
 });
 
-},{"amdefine":6}]},{},[4]);
+},{"amdefine":5}],34:[function(require,module,exports){
+var Parser = require("jison").Parser;
+
+//get the grammer and python as text on DOM load
+$(() => {
+    getFiles(["/pythonGrammar.jison", "/python/python.py", "/python/pythonSyntaxError.py"], (filesData) => {
+
+        //store all the the retrieved text in global variables
+        window.grammerText = filesData["/pythonGrammar.jison"];
+        window.sampleScriptText = filesData["/python/python.py"];
+        window.sampleErrorText = filesData["/python/pythonSyntaxError.py"];
+
+        //load the run the sample script on DOM load
+        sampleScript();
+    });
+});
+
+//set the input to the sample script and run
+window.sampleScript = () =>
+{
+    $("#input").val(window.sampleScriptText);
+    run();
+}
+
+//set the input to the error sample and run
+window.sampleError = () =>
+{
+    $("#input").val(window.sampleErrorText);
+    run();
+}
+
+//clear the input and run (which also clears the output)
+window.clearInput = () =>
+{
+    $("#input").val("");
+    run();
+}
+
+//compile the grammer and run whatever text is in the input window
+window.run = () =>
+{
+    //global variables controlling the state while the abstract syntax tree is traversed
+    window.variables = {};
+    window.output = "";
+    window.break = false;
+
+    //create a parser based on the pythonGrammer.jison
+    var parser = new Parser(window.grammerText);
+
+    //get the input text
+    var inputText = document.getElementById("input").value;
+
+    //insert curly braces based on the indentation
+    inputText = addCurlyBraces(inputText);
+    
+    try
+    {
+        //try to run the bison parser
+        var rootNode = parser.parse(inputText);
+        processNode(rootNode);
+        $("#output").html(window.output);
+    }
+    catch(e)
+    {
+        //display any syntax errors
+        e = e.toString();
+        e = nextLine(e)[0];
+        for(var i = 0; i < 2; i++)
+            e = e.replace(/\r\n|\r|\n/, "");
+        $("#output").html(e);
+    }
+}
+},{"jison":19}]},{},[34]);
