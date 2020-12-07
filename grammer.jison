@@ -43,6 +43,10 @@
 "else"                         return 'ELSE'
 "elif"                         return "ELIF"
 "while"                        return "WHILE"
+"for"                          return "FOR"
+"range"                        return "RANGE"
+"in"                           return "IN"
+","                            return ','
 
 "print"                        return "PRINT"
 "str"                          return "STR"
@@ -93,6 +97,9 @@ line
 
     | WHILE e ':' '{' line '}' line
         {$$ = {next : $7, action : ["while", $e, $5]}}
+    
+    | FOR VARIABLE IN RANGE '(' e ',' e ')' ':' '{' line '}' line
+        {$$ = {next : $14, action : ["for", $6, $8, $VARIABLE, $12]}}
 
     | COMMENT lineend line
         {$$ = {next : $line, action : ["no_op"]}}

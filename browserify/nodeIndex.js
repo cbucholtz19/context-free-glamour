@@ -790,6 +790,16 @@ function processNode(node)
                 processNode(node.action[2]);
             }
             break;
+        case "for":
+            var from = processNode(node.action[1]);
+            var to = processNode(node.action[2]);
+            console.log(from + " " + to);
+            for(var i = from; i < to; i++)
+            {
+                window.variables[node.action[3]] = i;
+                processNode(node.action[4]);
+            }
+            break;
         default:
             console.log("Unknown node: " + node.action[0]);
             return null;
@@ -876,7 +886,6 @@ window.run = (grammerText) =>
     var parser = new Parser(grammerText);
     var inputText = document.getElementById("input").value;
     inputText = addCurlyBraces(inputText);
-    console.log(inputText);
     
     var rootNode = parser.parse(inputText);
     processNode(rootNode);
