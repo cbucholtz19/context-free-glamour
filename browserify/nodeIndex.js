@@ -894,13 +894,13 @@ function addCurlyBraces(text)
     return outputText;
 }
 
-window.run = (grammerText) =>
+window.run = () =>
 {
     window.variables = {};
     window.output = "";
     window.break = false;
 
-    var parser = new Parser(grammerText);
+    var parser = new Parser(window.grammerText);
     var inputText = document.getElementById("input").value;
     inputText = addCurlyBraces(inputText);
     
@@ -942,7 +942,8 @@ function getFiles(files, filesDataCallback)
 $(() => {
     getFiles(["grammer.jison", "python.py"], (filesData) => {
         $("#input").val(filesData["python.py"]);
-        run(filesData["grammer.jison"]);
+        window.grammerText = filesData["grammer.jison"];
+        run();
     });
 });
 },{"dns":1,"fs":1,"jison":20}],5:[function(require,module,exports){
