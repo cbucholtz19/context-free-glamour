@@ -88,16 +88,11 @@ line
     | PRINT '(' e ')' lineend line
         {$$ = {next : $line, action : ["print", $e]}}
 
-    | IF e ':' optionalnewline '{' line '}' line
-        {$$ = {next : $8, action : ["if", $e, $6, null]}}
-    | IF e ':' optionalnewline '{' line '}' ELSE ':' optionalnewline '{' line '}' line
-        {$$ = {next : $14, action : ["if", $e, $6, $12]}}
-    
-    // | IF e ':' optionalnewline '{' line '}' ELIF e ':' optionalnewline '{' line '}' line
-    //     {$$ = {next : $14, action : ["if", $e, $6, $12]}}
+    | IF e ':' '{' line '}' elseif line
+        {$$ = {next : $8, action : ["if", $e, $5, $elseif]}}
 
-    | WHILE e ':' optionalnewline '{' line '}' line
-        {$$ = {next : $8, action : ["while", $e, $6]}}
+    | WHILE e ':' '{' line '}' line
+        {$$ = {next : $7, action : ["while", $e, $5]}}
 
     | COMMENT lineend line
         {$$ = {next : $line, action : ["no_op"]}}
@@ -107,17 +102,19 @@ line
         {$$ = {next : null, action : ["no_op"]}}
     ;
 
+elseif
+    : ELIF e ':' '{' line '}' elseif
+        {$$ = {next : null, action : ["if", $e, $5, $elseif]}}
+    | ELSE ':' '{' line '}'
+        {$$ = {next : null, action : ["else", $line]}}
+    |
+        {$$ = {next : null, action : ["no_op"]}}
+    ;
+
 lineend
     : NEWLINE
         {}
     | EOF
-        {}
-    ;
-
-optionalnewline
-    : NEWLINE
-        {}
-    |
         {}
     ;
 

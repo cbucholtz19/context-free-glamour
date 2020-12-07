@@ -27,8 +27,10 @@ while charmender_HP > 0 and squirtle_HP > 0:
         print("Charmender got bitten! HP is: "+str(squirtle_HP))
         turn = 1
 
-# # Print winner pokemon
-# if charmender_HP >= 1:
-#     print(name+"'s Charmender won!")
-# elif squirtle_HP >=1:
-#     print(name+"'s Squirtle won!")
+# Print winner pokemon
+if charmender_HP >= 1:
+    print(name+"'s Charmender won!")
+elif squirtle_HP >=1:
+    print(name+"'s Squirtle won!")
+else:
+    print("Something went wrong!!!")

@@ -59,6 +59,9 @@ function processNode(node)
             else
                 processNode(node.action[3]);
             break;
+        case "else":
+            processNode(node.action[1]);
+            break;
         case "while":
             while(processNode(node.action[1]))
             {
