@@ -6,15 +6,21 @@ body {
     margin: 0;
     background-repeat: no-repeat;
     background-attachment: fixed;
-    background: linear-gradient(to bottom, #000066 0%, #3399ff 100%);
+    background-color: rgb(78, 80, 90);
 }
-#input {
-    width: 650px;
-    height: 600px;
+#editor, #output {
+    min-height: 600px;
     border: 3px solid black;
     border-radius: 5px;
+    padding: 4px;
+    margin: 0;
+}
+#editor {
+    width: 600px;
+    resize: none;
 }
 #output {
+    min-width: 400px;
     white-space: pre;
 }
 .button {
@@ -32,8 +38,28 @@ body {
     justify-content: center;
     margin: 10px 0px;
 }
-#input_container {
+.center {
     display: flex;
     align-items: center;
     justify-content: center;
+}
+#input_container, #output {
+    float: left;
+}
+#output {
+    background-color: white;
+}
+#input_output_container {
+    margin-top: 25px;
+}
+
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#editor { 
+    width: 600px;
+    height: 500px;
 }

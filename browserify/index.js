@@ -16275,6 +16275,11 @@ var Parser = require("jison").Parser;
 
 //get the grammer and python as text on DOM load
 $(() => {
+    window.editor = ace.edit("editor");
+    window.editor.setTheme("ace/theme/monokai");
+    window.editor.session.setMode("ace/mode/python");
+    window.editor.resize();
+
     getFiles(["/pythonGrammar.jison", "/python/python.py", "/python/pythonSyntaxError.py"], (filesData) => {
 
         //store all the the retrieved text in global variables
@@ -16282,29 +16287,29 @@ $(() => {
         window.sampleScriptText = filesData["/python/python.py"];
         window.sampleErrorText = filesData["/python/pythonSyntaxError.py"];
 
-        //load the run the sample script on DOM load
-        sampleScript();
+        //clear the input on DOM load
+        clearInput();
     });
 });
 
 //set the input to the sample script and run
 window.sampleScript = () =>
 {
-    $("#input").val(window.sampleScriptText);
-    run();
+    clearInput();
+    window.editor.setValue(window.sampleScriptText, -1);
 }
 
 //set the input to the error sample and run
 window.sampleError = () =>
 {
-    $("#input").val(window.sampleErrorText);
-    run();
+    clearInput();
+    window.editor.setValue(window.sampleErrorText, -1);
 }
 
 //clear the input and run (which also clears the output)
 window.clearInput = () =>
 {
-    $("#input").val("");
+    window.editor.setValue("", -1);
     run();
 }
 
@@ -16320,7 +16325,7 @@ window.run = () =>
     var parser = new Parser(window.grammerText);
 
     //get the input text
-    var inputText = document.getElementById("input").value;
+    var inputText = window.editor.getValue();
 
     //replace all 4 spaces with a tab
     inputText = inputText.replaceAll("    ", "\t");
@@ -16334,15 +16339,17 @@ window.run = () =>
         var rootNode = parser.parse(inputText);
         processNode(rootNode);
         $("#output").html(window.output);
+        var outputHeight = $("#output").height();
+        $("#editor").height(outputHeight);
+        window.editor.resize();
     }
     catch(e)
     {
         //display any syntax errors
+        console.log(e);
         e = e.toString();
         e = nextLine(e)[0];
-        for(var i = 0; i < 2; i++)
-            e = e.replace(/\r\n|\r|\n/, "");
-        $("#output").html(e);
+        $("#output").html(e + "\n\n(check console for error message if the above formatting is broken)");
     }
 }
 },{"jison":19}]},{},[34]);

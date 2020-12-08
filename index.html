@@ -1,23 +1,19 @@
 <!doctype html>
 <html>
   <head>
-<<<<<<< HEAD
-    <title>CS4450 Python Interpreter</title>
-
-=======
     <title>Context Free Glamour</title>
-    
->>>>>>> aa2a1df6576c90fdcc9b2bd9cafa77c27fc4ab11
+
     <link rel="stylesheet" href="index.css">
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.12/ace.js"></script>
     <script src="scripts/utility.js"></script>
     <script src="scripts/abstractSyntaxTree.js"></script>
     <script src="scripts/preprocess.js"></script>
     <script src="browserify/index.js"></script>
-      
+
   </head>
   <body>
     <div id="container">
@@ -27,16 +23,15 @@
             <button type="button" onclick="sampleError()" class="button">Sample Syntax Error</button>
             <button type="button" onclick="clearInput()" class="button">Clear Input</button>
         </div>
-        <br>
-        <div id="input_container">
-            <textarea id="input" name="input" placeholder="input"></textarea>
+        <div id="input_output_container" class="clearfix center">
+            <div id="input_container">
+                <div id="editor"></div>
+            </div>
+            <div id="output"></div>
         </div>
-        <br>
-        <div class="button_container">
+        <div class="button_container center">
             <button type="button" onclick="run()" class="button">Run</button>
         </div>
-        <br>
-        <div id="output"></div>
     </div>
   </body>
 </html>

@@ -10,6 +10,13 @@ function addCurlyBraces(text)
         var data = nextLine(text);
         text = data[0];
         var line = data[1];
+        if(line.length == 0)
+        {
+            for(var i = 0; i < blocks[blocks.length - 1]; i++)
+            {
+                line = "\t" + line;
+            }
+        }
         var numTabs = getNumTabs(line);
         while(numTabs < blocks[blocks.length - 1])
         {
