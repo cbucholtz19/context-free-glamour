@@ -10,9 +10,9 @@ The members of Context Free Glamour are Callum Ferguson, Conrad Bucholtz, Keegan
 
 ## Interpreter Requirements
 This code interprets a limited set of Python features including:
-* Comments
-* If/else statements
-* While/for loops
+* Single-line Comments
+* if/else Statements
+* while/for Loops
 * Variables
 * Arithmetic Operators
 * Assignment Operators
