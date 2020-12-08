@@ -1,7 +1,7 @@
 # Context Free Glamour
 
 ## Project Explanation
-Python interpreter using Jison.
+This is a limited functionality Python interpreter using Jison.
 
 "Jison takes a context-free grammar as input and outputs a JavaScript file capable of parsing the language described by that grammar." https://zaa.ch/jison/docs/
 
