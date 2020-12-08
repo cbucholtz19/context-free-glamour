@@ -1,8 +1,39 @@
+html {
+    height: 100%;
+}
+body {
+    height: 100%;
+    margin: 0;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background: linear-gradient(to bottom, #000066 0%, #3399ff 100%);
+}
 #input {
     width: 650px;
     height: 600px;
+    border: 3px solid black;
+    border-radius: 5px;
 }
-
 #output {
     white-space: pre;
+}
+.button {
+    margin-left: 10px;
+    margin-right: 10px;
+    padding: 10px;
+    border: 3px solid black;
+    border-radius: 5px;
+    font-size: 20px;
+    font-family: 'Righteous', cursive;
+}
+.button_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0px;
+}
+#input_container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }

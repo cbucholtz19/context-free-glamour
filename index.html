@@ -1,25 +1,37 @@
 <!doctype html>
 <html>
   <head>
-    <title>Test</title>
-    
+    <title>CS4450 Python Interpreter</title>
+
     <link rel="stylesheet" href="index.css">
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Righteous&display=swap" rel="stylesheet">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="scripts/utility.js"></script>
     <script src="scripts/abstractSyntaxTree.js"></script>
     <script src="scripts/preprocess.js"></script>
     <script src="browserify/index.js"></script>
+      
   </head>
   <body>
-    <button type="button" onclick="sampleScript()">Sample Script</button>
-    <button type="button" onclick="sampleError()">Sample Syntax Error</button>
-    <button type="button" onclick="clearInput()">Clear Input</button>
-    <br>
-    <textarea id="input" name="input" placeholder="input"></textarea>
-    <br>
-    <button type="button" onclick="run()">Run</button>
-    <br>
-    <did id="output"></did>
+    <div id="container">
+        <br>
+        <div class="button_container">
+            <button type="button" onclick="sampleScript()" class="button">Sample Script</button>
+            <button type="button" onclick="sampleError()" class="button">Sample Syntax Error</button>
+            <button type="button" onclick="clearInput()" class="button">Clear Input</button>
+        </div>
+        <br>
+        <div id="input_container">
+            <textarea id="input" name="input" placeholder="input"></textarea>
+        </div>
+        <br>
+        <div class="button_container">
+            <button type="button" onclick="run()" class="button">Run</button>
+        </div>
+        <br>
+        <div id="output"></div>
+    </div>
   </body>
 </html>
